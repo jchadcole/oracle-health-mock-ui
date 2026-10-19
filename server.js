@@ -208,7 +208,7 @@ async function genesysConversation(id) {
 const routes = [];
 const route = (method, pattern, handler, opts = {}) => routes.push({ method, re: new RegExp(`^${pattern.replace(/:(\w+)/g, '(?<$1>[^/]+)')}$`), handler, ...opts });
 
-route('GET', '/api/health', () => ({ status: 'ok', seededOn: db.seededOn, time: nowLocal(), timeZone: DEMO_TZ, patients: db.patients.length, genesysLookup: !!GENESYS.clientId }));
+route('GET', '/api/health', () => ({ status: 'ok', version: (process.env.RENDER_GIT_COMMIT || 'local').slice(0, 7), frameAncestors: FRAME_ANCESTORS, seededOn: db.seededOn, time: nowLocal(), timeZone: DEMO_TZ, patients: db.patients.length, genesysLookup: !!GENESYS.clientId }));
 route('GET', '/api/config', (req) => ({ baseUrl: baseUrl(req), timeZone: DEMO_TZ, today: todayInTz(), now: nowLocal(), genesysLookup: !!GENESYS.clientId, apiKeyRequired: !!API_KEY, organization: 'Lakeview Health (fictional)' }));
 route('GET', '/api/users', () => db.users);
 route('GET', '/api/providers', () => db.providers);
