@@ -11,7 +11,9 @@ const fhir = require('./lib/fhir');
 
 const PORT = Number(process.env.PORT || 8080);
 const API_KEY = process.env.API_KEY || '';                 // optional: protects integration endpoints
-const FRAME_ANCESTORS = process.env.FRAME_ANCESTORS || '*'; // who may iframe the UI (Genesys Scripts / Interaction Widget)
+// Who may iframe the UI (Genesys Scripts / Interaction Widget). Stray wrapping quotes (e.g. "*" typed into a
+// hosting dashboard) would make the CSP invalid and block every frame, so strip them.
+const FRAME_ANCESTORS = (process.env.FRAME_ANCESTORS || '').trim().replace(/^"(.*)"$/, '$1').trim() || '*';
 const PUBLIC_URL = (process.env.PUBLIC_URL || '').replace(/\/$/, '');
 const DEMO_TZ = process.env.DEMO_TZ || 'America/Chicago';
 const GENESYS = {
