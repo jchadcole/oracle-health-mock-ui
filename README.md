@@ -52,7 +52,7 @@ There are two patterns. Both are live in the app; use whichever fits the demo.
 Genesys opens the EHR at `/pop` with the caller's details in the query string. One match opens the chart on the right tab, several matches show a picker, no match offers registration.
 
 ```
-https://YOUR-HOST/pop?phone=<ANI>&conversationId=<id>&queue=<queue>&intent=<intent>&embed=1
+https://oracle-health-mock-ehr.onrender.com/pop?phone=<ANI>&conversationId=<id>&queue=<queue>&intent=<intent>&embed=1
 ```
 
 Other identifiers: `mrn`, `fin`, `patientId`, `lastName` + `dob`. `intent` picks the tab (billing goes to Account, appointment to Visits, refill to Medications, results to Results); `tab=` forces one. `view=classic` shows the PowerChart layout. Unfilled template variables like `{{Call.Ani}}` are ignored rather than breaking the page.
@@ -60,10 +60,10 @@ Other identifiers: `mrn`, `fin`, `patientId`, `lastName` + `dob`. `intent` picks
 Where to put that URL in Genesys Cloud:
 
 1. **Script with a Web Page component** (agent sees the EHR inside the interaction). In Admin > Scripts, add a Web Page component and set its URL to
-   `https://YOUR-HOST/pop?phone={{Scripter.Raw Customer Number}}&conversationId={{Scripter.Interaction ID}}&queue={{Scripter.Queue Name}}&agent={{Scripter.Agent Email}}&embed=1`
+   `https://oracle-health-mock-ehr.onrender.com/pop?phone={{Scripter.Raw Customer Number}}&conversationId={{Scripter.Interaction ID}}&queue={{Scripter.Queue Name}}&agent={{Scripter.Agent Email}}&embed=1`
    Insert the variables from the Script editor's variable picker; the exact built-in names can vary by release. Assign the script to the queue (or use Architect's **Set Screen Pop** action in the inbound call flow). If the IVR or a bot collected an MRN or date of birth, pass it through as participant data and add `&mrn={{MRN}}`.
 2. **Interaction Widget integration** (EHR in a side panel). Admin > Integrations > Interaction Widget, Application URL:
-   `https://YOUR-HOST/pop?conversationId={{gcConversationId}}&embed=1`
+   `https://oracle-health-mock-ehr.onrender.com/pop?conversationId={{gcConversationId}}&embed=1`
    The widget only passes the conversation ID, so set `GENESYS_CLIENT_ID`, `GENESYS_CLIENT_SECRET` and `GENESYS_REGION` on the server (an OAuth client-credentials client whose role can read conversations). The server then calls `GET /api/v2/conversations/{id}` to get the caller's number and pops the matching chart.
 3. **A plain "Open URL" or browser tab**: any of the URLs above works in a normal tab too.
 
@@ -72,7 +72,7 @@ Where to put that URL in Genesys Cloud:
 The agent keeps the EHR open in its own browser tab. Something in Genesys calls `POST /api/screenpop` with the caller's number and the agent's email; the EHR in that agent's browser pops the chart instantly (Server-Sent Events). Use `"agent": "*"` to pop every open EHR, which is handy for a single-presenter demo.
 
 ```
-curl -X POST https://YOUR-HOST/api/screenpop \
+curl -X POST https://oracle-health-mock-ehr.onrender.com/api/screenpop \
   -H "Content-Type: application/json" -H "x-api-key: $API_KEY" \
   -d '{"phone":"tel:+13125550142","agent":"taylor.nguyen@lakeviewhealth.example","conversationId":"abc-123","queue":"Patient Access"}'
 ```
@@ -89,7 +89,7 @@ Ways to trigger it from Genesys Cloud: a data action run from the agent's Script
 | `push-screen-pop.json` | `POST /api/screenpop` | Pattern B push |
 | `log-interaction.json` | `POST /api/patients/{id}/activities` | Write the call outcome back to the chart from a Script or wrap-up flow |
 
-Before importing, replace `https://YOUR-HOST` with your URL. For the API key, give the integration **User Defined** credentials with a field named `apiKey` (the actions send it as `x-api-key: ${credentials.apiKey}`). If the import format is rejected by your org's version, create the actions by hand: the URL, method, body template and output contract are all readable in the JSON.
+These already point at the hosted demo, https://oracle-health-mock-ehr.onrender.com; change the URL if you host it elsewhere. For the API key, give the integration **User Defined** credentials with a field named `apiKey` (the actions send it as `x-api-key: ${credentials.apiKey}`). If the import format is rejected by your org's version, create the actions by hand: the URL, method, body template and output contract are all readable in the JSON.
 
 Full endpoint list (including FHIR R4 `Patient`, `Appointment`, `AllergyIntolerance`, `Condition` and `MedicationRequest` searches): `/api-docs.html` on the running server.
 

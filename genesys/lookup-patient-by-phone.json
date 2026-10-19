@@ -4,7 +4,7 @@
   "actionType": "custom",
   "config": {
     "request": {
-      "requestUrlTemplate": "https://YOUR-HOST/api/patients/lookup?phone=$esc.url(${input.phone})&conversationId=$esc.url(${input.conversationId})",
+      "requestUrlTemplate": "https://oracle-health-mock-ehr.onrender.com/api/patients/lookup?phone=$esc.url(${input.phone})&conversationId=$esc.url(${input.conversationId})",
       "requestType": "GET",
       "headers": {
         "x-api-key": "${credentials.apiKey}"

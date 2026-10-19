@@ -4,7 +4,7 @@
   "actionType": "custom",
   "config": {
     "request": {
-      "requestUrlTemplate": "https://YOUR-HOST/api/patients/${input.patientId}/activities",
+      "requestUrlTemplate": "https://oracle-health-mock-ehr.onrender.com/api/patients/${input.patientId}/activities",
       "requestType": "POST",
       "headers": {
         "x-api-key": "${credentials.apiKey}",

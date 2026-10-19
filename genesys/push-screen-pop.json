@@ -4,7 +4,7 @@
   "actionType": "custom",
   "config": {
     "request": {
-      "requestUrlTemplate": "https://YOUR-HOST/api/screenpop",
+      "requestUrlTemplate": "https://oracle-health-mock-ehr.onrender.com/api/screenpop",
       "requestType": "POST",
       "headers": {
         "x-api-key": "${credentials.apiKey}",
