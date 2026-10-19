@@ -116,6 +116,7 @@ Environment variables:
 | `GENESYS_REGION` | mypurecloud.com | Genesys Cloud region domain, e.g. `usw2.pure.cloud`, `mypurecloud.ie` |
 | `GENESYS_CLIENT_ID`, `GENESYS_CLIENT_SECRET` | (none) | Optional client-credentials OAuth client for the Interaction Widget conversation lookup |
 | `RESET_DAILY` | true | Set `false` to keep changes across midnight |
+| `DEMO_PHONES` | (none) | Add your own caller IDs to demo patients so a real call pops them, e.g. `9195551234=p-1001,9195550000=p-1004` (number=patient ID or MRN). Survives restarts and resets. |
 
 ## Files
 

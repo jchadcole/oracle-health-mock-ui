@@ -23,17 +23,29 @@ const GENESYS = {
 };
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
-let db = seed(new Date(), DEMO_TZ);
+// DEMO_PHONES="9195551234=p-1001,9195550000=p-1004" adds real caller IDs (e.g. a presenter's mobile) to demo
+// patients so screen pops work from that phone. Applied on every reseed, so it survives restarts and daily resets.
+function freshDb() {
+  const d = seed(new Date(), DEMO_TZ);
+  for (const pair of (process.env.DEMO_PHONES || '').split(',').map((x) => x.trim()).filter(Boolean)) {
+    const [num, pid] = pair.split('=').map((x) => x.trim());
+    const p = d.patients.find((x) => x.id === pid || x.mrn === pid);
+    if (p && num) p.phones.unshift({ type: 'Mobile (demo)', number: fmtPhone(num), primary: true }), p.phones.slice(1).forEach((x) => { x.primary = false; });
+  }
+  return d;
+}
+let db;
 const todayInTz = () => new Intl.DateTimeFormat('en-CA', { timeZone: DEMO_TZ, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 function ensureFresh() {
   // Demo data is relative to "today"; reseed when the date rolls over so schedules never go stale.
-  if (process.env.RESET_DAILY !== 'false' && db.seededOn !== todayInTz()) db = seed(new Date(), DEMO_TZ);
+  if (process.env.RESET_DAILY !== 'false' && db.seededOn !== todayInTz()) db = freshDb();
 }
 
 // ---------- helpers ----------
 const digits = (s) => String(s || '').replace(/\D/g, '');
 const phoneKey = (s) => { const d = digits(s); return d.length >= 10 ? d.slice(-10) : d; };
 const fmtPhone = (s) => { const d = phoneKey(s); return d.length === 10 ? `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}` : s; };
+db = freshDb();
 const nowLocal = () => {
   const parts = new Intl.DateTimeFormat('en-CA', { timeZone: DEMO_TZ, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' }).formatToParts(new Date());
   const g = (t) => parts.find((p) => p.type === t).value;
@@ -325,7 +337,7 @@ route('GET', '/api/genesys/conversations/:id', async (req, url, { id }) => {
   const c = await genesysConversation(id);
   return { ...c, ...lookupResult(c.phone ? search({ phone: c.phone }) : [], req, { phone: c.phone, conversationId: id }) };
 });
-route('POST', '/api/admin/reset', () => { db = seed(new Date(), DEMO_TZ); return { status: 'reset', seededOn: db.seededOn }; });
+route('POST', '/api/admin/reset', () => { db = freshDb(); return { status: 'reset', seededOn: db.seededOn }; });
 
 // FHIR R4-flavoured read endpoints (subset), shaped like Oracle Health Millennium FHIR
 route('GET', '/fhir/r4/metadata', (req) => fhir.capability(baseUrl(req)));
