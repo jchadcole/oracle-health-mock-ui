@@ -1,0 +1,131 @@
+{
+  "name": "Oracle Health Mock - Lookup Patient by Phone",
+  "integrationType": "custom-rest-actions",
+  "actionType": "custom",
+  "config": {
+    "request": {
+      "requestUrlTemplate": "https://YOUR-HOST/api/patients/lookup?phone=$esc.url(${input.phone})&conversationId=$esc.url(${input.conversationId})",
+      "requestType": "GET",
+      "headers": {
+        "x-api-key": "${credentials.apiKey}"
+      },
+      "requestTemplate": "${input.rawRequest}"
+    },
+    "response": {
+      "translationMap": {
+        "found": "$.found",
+        "count": "$.count",
+        "multipleMatches": "$.multipleMatches",
+        "patientId": "$.patientId",
+        "mrn": "$.mrn",
+        "firstName": "$.firstName",
+        "lastName": "$.lastName",
+        "fullName": "$.fullName",
+        "dob": "$.dob",
+        "language": "$.language",
+        "balance": "$.balance",
+        "pcp": "$.pcp",
+        "nextAppointmentStart": "$.nextAppointmentStart",
+        "nextAppointmentType": "$.nextAppointmentType",
+        "nextAppointmentProvider": "$.nextAppointmentProvider",
+        "popUrl": "$.popUrl"
+      },
+      "translationMapDefaults": {
+        "found": "false",
+        "count": "0",
+        "multipleMatches": "false",
+        "patientId": "\"\"",
+        "mrn": "\"\"",
+        "firstName": "\"\"",
+        "lastName": "\"\"",
+        "fullName": "\"\"",
+        "dob": "\"\"",
+        "language": "\"\"",
+        "balance": "0",
+        "pcp": "\"\"",
+        "nextAppointmentStart": "\"\"",
+        "nextAppointmentType": "\"\"",
+        "nextAppointmentProvider": "\"\"",
+        "popUrl": "\"\""
+      },
+      "successTemplate": "{\"found\": ${found}, \"count\": ${count}, \"multipleMatches\": ${multipleMatches}, \"patientId\": ${patientId}, \"mrn\": ${mrn}, \"firstName\": ${firstName}, \"lastName\": ${lastName}, \"fullName\": ${fullName}, \"dob\": ${dob}, \"language\": ${language}, \"balance\": ${balance}, \"pcp\": ${pcp}, \"nextAppointmentStart\": ${nextAppointmentStart}, \"nextAppointmentType\": ${nextAppointmentType}, \"nextAppointmentProvider\": ${nextAppointmentProvider}, \"popUrl\": ${popUrl}}"
+    }
+  },
+  "contract": {
+    "input": {
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "phone"
+        ],
+        "properties": {
+          "phone": {
+            "type": "string",
+            "description": "Caller ANI, e.g. tel:+13125550142"
+          },
+          "conversationId": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "output": {
+      "successSchema": {
+        "type": "object",
+        "properties": {
+          "found": {
+            "type": "boolean"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "multipleMatches": {
+            "type": "boolean"
+          },
+          "patientId": {
+            "type": "string"
+          },
+          "mrn": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "dob": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "balance": {
+            "type": "number"
+          },
+          "pcp": {
+            "type": "string"
+          },
+          "nextAppointmentStart": {
+            "type": "string"
+          },
+          "nextAppointmentType": {
+            "type": "string"
+          },
+          "nextAppointmentProvider": {
+            "type": "string"
+          },
+          "popUrl": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "secure": false
+}

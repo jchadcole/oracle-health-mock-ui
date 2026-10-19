@@ -1,0 +1,72 @@
+{
+  "name": "Oracle Health Mock - Log Interaction",
+  "integrationType": "custom-rest-actions",
+  "actionType": "custom",
+  "config": {
+    "request": {
+      "requestUrlTemplate": "https://YOUR-HOST/api/patients/${input.patientId}/activities",
+      "requestType": "POST",
+      "headers": {
+        "x-api-key": "${credentials.apiKey}",
+        "Content-Type": "application/json"
+      },
+      "requestTemplate": "{\"method\": \"Phone call\", \"direction\": \"${input.direction}\", \"outcome\": \"${input.outcome}\", \"durationMin\": \"${input.durationMin}\", \"note\": \"${input.note}\", \"conversationId\": \"${input.conversationId}\", \"queue\": \"${input.queue}\", \"createdBy\": \"Genesys Cloud\", \"source\": \"Genesys Cloud\"}"
+    },
+    "response": {
+      "translationMap": {
+        "activityId": "$.id"
+      },
+      "translationMapDefaults": {
+        "activityId": "\"\""
+      },
+      "successTemplate": "{\"activityId\": ${activityId}}"
+    }
+  },
+  "contract": {
+    "input": {
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "patientId"
+        ],
+        "properties": {
+          "patientId": {
+            "type": "string"
+          },
+          "direction": {
+            "type": "string",
+            "default": "Inbound"
+          },
+          "outcome": {
+            "type": "string"
+          },
+          "durationMin": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          },
+          "conversationId": {
+            "type": "string"
+          },
+          "queue": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "output": {
+      "successSchema": {
+        "type": "object",
+        "properties": {
+          "activityId": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "secure": false
+}

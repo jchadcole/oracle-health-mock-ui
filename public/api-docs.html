@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mock EHR API Reference</title>
+<link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+<style>
+  :root { --teal: #06485f; --ink: #161513; --muted: #6f6c68; --line: #dcdad6; --bg: #f5f4f2; --code: #f1f0ed; }
+  body { margin: 0; font: 14px/1.55 "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif; color: var(--ink); background: var(--bg); }
+  header { background: var(--teal); color: #fff; padding: 22px 28px; } header h1 { margin: 0; font-size: 22px; font-weight: 600; } header p { margin: 4px 0 0; opacity: .85; }
+  main { max-width: 980px; margin: 0 auto; padding: 18px 20px 60px; }
+  h2 { font-size: 18px; margin: 30px 0 8px; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+  .ep { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 12px 16px; margin: 10px 0; }
+  .ep h3 { margin: 0 0 4px; font-size: 14px; font-family: ui-monospace, Menlo, Consolas, monospace; }
+  .m { display: inline-block; min-width: 52px; text-align: center; border-radius: 3px; padding: 1px 6px; color: #fff; font-size: 12px; margin-right: 6px; }
+  .GET { background: #2f7d4f; } .POST { background: #b4580f; } .PATCH { background: #5b4fa8; }
+  code, pre { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12.5px; background: var(--code); border-radius: 4px; }
+  code { padding: 1px 4px; } pre { padding: 10px 12px; overflow-x: auto; white-space: pre-wrap; word-break: break-all; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; } td, th { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .lock { color: #b4580f; font-size: 12px; } .muted { color: var(--muted); }
+  a { color: #0b6e99; }
+</style>
+</head>
+<body>
+<header><h1>Mock Oracle Health EHR API</h1><p>Screen pop, patient lookup and FHIR-style endpoints for Genesys Cloud demos. All data is fictional.</p></header>
+<main>
+  <p>Base URL: <code id="base">https://YOUR-HOST</code>. Endpoints marked <span class="lock">key</span> require <code>x-api-key: &lt;API_KEY&gt;</code> or <code>Authorization: Bearer &lt;API_KEY&gt;</code> when the server is started with <code>API_KEY</code> set. Phone numbers can be in any format (<code>tel:+13125550142</code>, <code>312-555-0142</code>); the last 10 digits are matched.</p>
+
+  <h2>1. Screen pop by URL</h2>
+  <div class="ep"><h3><span class="m GET">GET</span>/pop?&lt;params&gt;</h3>
+    Opens the EHR, finds the patient and starts an interaction banner (call timer, identity check, wrap-up). One match opens the chart; several matches show a picker; none offers registration.
+    <table><tr><th>Param</th><th>Meaning</th></tr>
+      <tr><td><code>phone</code> / <code>ani</code></td><td>Caller number</td></tr>
+      <tr><td><code>mrn</code>, <code>fin</code>, <code>patientId</code></td><td>Exact identifiers (take priority over phone)</td></tr>
+      <tr><td><code>lastName</code> + <code>dob</code></td><td>Demographic match (dob as YYYY-MM-DD)</td></tr>
+      <tr><td><code>conversationId</code> / <code>gcConversationId</code></td><td>Genesys conversation ID; logged with the call. With server-side Genesys credentials configured and no phone given, the server looks up the caller's number from Genesys.</td></tr>
+      <tr><td><code>queue</code>, <code>direction</code>, <code>mediaType</code>, <code>intent</code></td><td>Shown in the banner. <code>intent</code> picks the chart tab (billing &rarr; Account, appointment &rarr; Visits, refill &rarr; Medications, results &rarr; Results)</td></tr>
+      <tr><td><code>tab</code></td><td>Force a chart tab: summary, problems, medications, results, documents, allergies, visits, careteam, activity, account, histories</td></tr>
+      <tr><td><code>embed=1</code></td><td>Compact layout for an iframe (auto-detected when framed)</td></tr>
+      <tr><td><code>view=classic</code></td><td>PowerChart-style chart instead of the new Oracle Health EHR look</td></tr>
+      <tr><td><code>agent</code>, <code>persona</code></td><td>Set the agent email this browser listens for; persona (access, care, provider, billing) used if nobody is signed in</td></tr>
+    </table>
+    Unsubstituted template text like <code>{{Call.Ani}}</code> is ignored, so a missing variable degrades to a search screen instead of an error.
+  </div>
+
+  <h2>2. Screen pop by API (push)</h2>
+  <div class="ep"><h3><span class="m POST">POST</span>/api/screenpop <span class="lock">key</span></h3>
+    Pushes a pop to every open EHR browser signed in as <code>agent</code> (Server-Sent Events). Use <code>"agent": "*"</code> to pop on all open browsers.
+    <pre>curl -X POST https://YOUR-HOST/api/screenpop -H "Content-Type: application/json" -H "x-api-key: $API_KEY" \
+  -d '{"phone":"tel:+13125550142","agent":"taylor.nguyen@lakeviewhealth.example","conversationId":"c1d2...","queue":"Patient Access","intent":"Billing question"}'</pre>
+    Response: the lookup result below plus <code>screenPopId</code> and <code>deliveredTo</code> (number of browsers that received it).
+  </div>
+  <div class="ep"><h3><span class="m GET">GET</span>/api/screenpop/events?agent=&lt;email&gt;</h3>Server-Sent Events stream the EHR uses to receive pushes (<code>event: screenpop</code>).</div>
+  <div class="ep"><h3><span class="m GET">GET</span>/api/screenpop/recent</h3>Last 50 pops received.</div>
+
+  <h2>3. Lookup for IVR / bots / data actions</h2>
+  <div class="ep"><h3><span class="m GET">GET</span>/api/patients/lookup?phone=|mrn=|fin=|patientId=|lastName=&amp;dob= <span class="lock">key</span></h3>
+    Flat JSON designed for Genesys data action output contracts.
+    <pre>{
+  "found": true, "count": 1, "multipleMatches": false,
+  "patientId": "p-1001", "mrn": "700101", "firstName": "Maria", "lastName": "Gonzalez", "fullName": "Maria Gonzalez",
+  "dob": "1968-04-12", "age": 58, "language": "Spanish", "balance": 145.2, "pcp": "Elena Martinez, MD",
+  "nextAppointmentStart": "2026-10-19T08:30:00", "nextAppointmentType": "Follow-up", "nextAppointmentProvider": "Elena Martinez, MD",
+  "popUrl": "https://YOUR-HOST/pop?patientId=p-1001&amp;phone=...",
+  "matches": [ ... ]
+}</pre></div>
+
+  <h2>4. EHR workflow endpoints</h2>
+  <div class="ep"><h3><span class="m GET">GET</span>/api/patients?q=|phone=|mrn=|fin=|dob=|lastName=|firstName=|email=|memberId=</h3>Patient search (summaries).</div>
+  <div class="ep"><h3><span class="m GET">GET</span>/api/patients/{id}</h3>Full chart: demographics, allergies, problems, medications, vitals, results, encounters, documents, care team, activity log, account, appointments.</div>
+  <div class="ep"><h3><span class="m POST">POST</span>/api/patients</h3>Register: <code>firstName, lastName, dob</code> required; optional <code>sex, phone, email, addressLine, city, state, zip, language, payer, plan, memberId, group</code>.</div>
+  <div class="ep"><h3><span class="m PATCH">PATCH</span>/api/patients/{id}</h3>Update <code>phones, email, address, language, preferredName, insurance, emergencyContact, portal</code>.</div>
+  <div class="ep"><h3><span class="m GET">GET</span>/api/slots?providerId=&amp;specialty=&amp;from=YYYY-MM-DD&amp;days=10</h3>Open appointment slots.</div>
+  <div class="ep"><h3><span class="m POST">POST</span>/api/patients/{id}/appointments</h3>Book: <code>providerId, start</code> (from a slot), <code>type, reason, visitMode, conversationId</code>. 409 if the slot was taken.</div>
+  <div class="ep"><h3><span class="m PATCH">PATCH</span>/api/appointments/{id}</h3>Reschedule or change status: <code>start, providerId, status</code> (Confirmed, Arrived, Completed, Cancelled, No Show).</div>
+  <div class="ep"><h3><span class="m GET">GET</span>/api/schedule?providerId=pr-1&amp;date=YYYY-MM-DD</h3>Provider day schedule.</div>
+  <div class="ep"><h3><span class="m POST">POST</span>/api/patients/{id}/activities</h3>Log a contact (what the wrap-up button does): <code>method, direction, outcome, durationMin, note, conversationId, queue, createdBy</code>.</div>
+  <div class="ep"><h3><span class="m POST">POST</span>/api/patients/{id}/prescriptions</h3>New or renewed prescription: <code>name, sig, refills, pharmacy, renew</code>.</div>
+  <div class="ep"><h3><span class="m POST">POST</span>/api/patients/{id}/payments</h3>Post a payment: <code>amount, method</code>. Returns new balance and confirmation number.</div>
+  <div class="ep"><h3><span class="m POST">POST</span>/api/patients/{id}/documents</h3>Sign a note: <code>title, type, text, author</code>.</div>
+  <div class="ep"><h3><span class="m GET">GET</span>/api/messages &nbsp; <span class="m PATCH">PATCH</span>/api/messages/{id}</h3>Message Center inbox.</div>
+  <div class="ep"><h3><span class="m GET">GET</span>/api/providers &nbsp; /api/users &nbsp; /api/config &nbsp; /api/health</h3>Reference data and health check.</div>
+  <div class="ep"><h3><span class="m POST">POST</span>/api/admin/reset</h3>Restore the demo data (also happens automatically each day and on restart).</div>
+  <div class="ep"><h3><span class="m GET">GET</span>/api/genesys/conversations/{conversationId}</h3>Server-side Genesys lookup of the customer participant's number, then patient match. Needs <code>GENESYS_CLIENT_ID</code>, <code>GENESYS_CLIENT_SECRET</code>, <code>GENESYS_REGION</code>.</div>
+
+  <h2>5. FHIR R4 (read-only subset) <span class="lock">key</span></h2>
+  <div class="ep"><h3><span class="m GET">GET</span>/fhir/r4/Patient?telecom=phone|3125550142 &nbsp;|&nbsp; ?identifier=700101 &nbsp;|&nbsp; ?family=&amp;given=&amp;birthdate=</h3>Bundle of Patient resources.</div>
+  <div class="ep"><h3><span class="m GET">GET</span>/fhir/r4/Patient/{id} &nbsp; /fhir/r4/Appointment?patient= &nbsp; /fhir/r4/AllergyIntolerance?patient= &nbsp; /fhir/r4/Condition?patient= &nbsp; /fhir/r4/MedicationRequest?patient= &nbsp; /fhir/r4/metadata</h3></div>
+
+  <h2>Demo callers</h2>
+  <table><tr><th>Number</th><th>Patient</th><th>Good for</th></tr>
+    <tr><td>(312) 555-0142</td><td>Maria Gonzalez, MRN 700101</td><td>Billing balance, refill, Spanish interpreter, diabetes care gap</td></tr>
+    <tr><td>(312) 555-0188</td><td>James Whitfield, MRN 700102</td><td>Recent hospital discharge, care management follow-up</td></tr>
+    <tr><td>(312) 555-0131</td><td>Emily and Daniel Kowalski</td><td>Shared household phone: two matches, minor patient</td></tr>
+    <tr><td>(847) 555-0163</td><td>Robert Chen, MRN 700104</td><td>Surgery scheduling, payment plan</td></tr>
+    <tr><td>(312) 555-0199</td><td>Thomas Reed, MRN 700110</td><td>Past-due balance, self-pay, financial assistance</td></tr>
+    <tr><td>(708) 555-0155</td><td>Samuel Brooks (caregiver line)</td><td>Caregiver / POA calling for a patient with dementia</td></tr>
+    <tr><td>(773) 555-0119</td><td>Aisha Rahman, MRN 700103</td><td>Prenatal appointments</td></tr>
+    <tr><td>any other</td><td>No match</td><td>New patient registration</td></tr>
+  </table>
+</main>
+<script>document.getElementById('base').textContent = location.origin;</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+# Render.com blueprint: New > Blueprint, point it at the repo that contains this folder.
+services:
+  - type: web
+    name: oracle-health-mock-ehr
+    runtime: node
+    plan: free
+    buildCommand: echo "no build step"
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: DEMO_TZ
+        value: America/Chicago
+      - key: API_KEY
+        generateValue: true
+      - key: FRAME_ANCESTORS
+        value: "'self' https://*.mypurecloud.com https://*.mypurecloud.ie https://*.mypurecloud.de https://*.mypurecloud.jp https://*.mypurecloud.com.au https://*.pure.cloud"

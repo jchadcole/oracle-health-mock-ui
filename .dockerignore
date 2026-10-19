@@ -1,0 +1,4 @@
+genesys
+*.md
+.git
+node_modules

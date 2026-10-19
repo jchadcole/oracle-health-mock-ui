@@ -1,0 +1,101 @@
+{
+  "name": "Oracle Health Mock - Push Screen Pop",
+  "integrationType": "custom-rest-actions",
+  "actionType": "custom",
+  "config": {
+    "request": {
+      "requestUrlTemplate": "https://YOUR-HOST/api/screenpop",
+      "requestType": "POST",
+      "headers": {
+        "x-api-key": "${credentials.apiKey}",
+        "Content-Type": "application/json"
+      },
+      "requestTemplate": "{\"phone\": \"${input.phone}\", \"conversationId\": \"${input.conversationId}\", \"agent\": \"${input.agentEmail}\", \"queue\": \"${input.queue}\", \"mediaType\": \"${input.mediaType}\", \"intent\": \"${input.intent}\"}"
+    },
+    "response": {
+      "translationMap": {
+        "found": "$.found",
+        "count": "$.count",
+        "patientId": "$.patientId",
+        "mrn": "$.mrn",
+        "fullName": "$.fullName",
+        "popUrl": "$.popUrl",
+        "deliveredTo": "$.deliveredTo"
+      },
+      "translationMapDefaults": {
+        "found": "false",
+        "count": "0",
+        "patientId": "\"\"",
+        "mrn": "\"\"",
+        "fullName": "\"\"",
+        "popUrl": "\"\"",
+        "deliveredTo": "0"
+      },
+      "successTemplate": "{\"found\": ${found}, \"count\": ${count}, \"patientId\": ${patientId}, \"mrn\": ${mrn}, \"fullName\": ${fullName}, \"popUrl\": ${popUrl}, \"deliveredTo\": ${deliveredTo}}"
+    }
+  },
+  "contract": {
+    "input": {
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "phone",
+          "agentEmail"
+        ],
+        "properties": {
+          "phone": {
+            "type": "string"
+          },
+          "conversationId": {
+            "type": "string"
+          },
+          "agentEmail": {
+            "type": "string",
+            "description": "Genesys agent email; use * to pop on every open EHR"
+          },
+          "queue": {
+            "type": "string"
+          },
+          "mediaType": {
+            "type": "string",
+            "default": "voice"
+          },
+          "intent": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "output": {
+      "successSchema": {
+        "type": "object",
+        "properties": {
+          "found": {
+            "type": "boolean"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "patientId": {
+            "type": "string"
+          },
+          "mrn": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "popUrl": {
+            "type": "string"
+          },
+          "deliveredTo": {
+            "type": "integer"
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "secure": false
+}
