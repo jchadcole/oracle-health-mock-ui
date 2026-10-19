@@ -357,7 +357,9 @@ function serveStatic(req, res, pathname) {
     const html = `${file}.html`;
     file = fs.existsSync(html) ? html : path.join(PUBLIC_DIR, 'index.html'); // SPA fallback (/pop, /chart/..., etc.)
   }
-  res.writeHead(200, { 'Content-Type': MIME[path.extname(file)] || 'application/octet-stream', 'Content-Security-Policy': `frame-ancestors ${FRAME_ANCESTORS}`, 'Cache-Control': 'no-cache' });
+  const headers = { 'Content-Type': MIME[path.extname(file)] || 'application/octet-stream', 'Cache-Control': 'no-cache' };
+  if (FRAME_ANCESTORS !== '*') headers['Content-Security-Policy'] = `frame-ancestors ${FRAME_ANCESTORS}`; // no header = any site may frame it
+  res.writeHead(200, headers);
   fs.createReadStream(file).pipe(res);
 }
 
