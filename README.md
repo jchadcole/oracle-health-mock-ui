@@ -60,8 +60,8 @@ Other identifiers: `mrn`, `fin`, `patientId`, `lastName` + `dob`. `intent` picks
 Where to put that URL in Genesys Cloud:
 
 1. **Script with a Web Page component** (agent sees the EHR inside the interaction). In Admin > Scripts, add a Web Page component and set its URL to
-   `https://oracle-health-mock-ehr.onrender.com/pop?phone={{Scripter.Raw Customer Number}}&conversationId={{Scripter.Interaction ID}}&queue={{Scripter.Queue Name}}&agent={{Scripter.Agent Email}}&embed=1`
-   Insert the variables from the Script editor's variable picker; the exact built-in names can vary by release. Assign the script to the queue (or use Architect's **Set Screen Pop** action in the inbound call flow). If the IVR or a bot collected an MRN or date of birth, pass it through as participant data and add `&mrn={{MRN}}`.
+   `https://oracle-health-mock-ehr.onrender.com/pop?phone={{Customer phone variable}}&conversationId={{Scripter.Interaction ID}}&queue={{Scripter.Queue Name}}&agent={{Scripter.Agent Email}}&embed=1`
+   Insert each variable from the Script editor's variable picker (Scripter.Raw Customer Number does not exist; use the customer phone or ANI variable your org lists). Assign the script to the queue (or use Architect's **Set Screen Pop** action in the inbound call flow). If the IVR or a bot collected an MRN or date of birth, pass it through as participant data and add `&mrn={{MRN}}`.
 2. **Interaction Widget integration** (EHR in a side panel). Admin > Integrations > Interaction Widget, Application URL:
    `https://oracle-health-mock-ehr.onrender.com/pop?conversationId={{gcConversationId}}&embed=1`
    The widget only passes the conversation ID, so set `GENESYS_CLIENT_ID`, `GENESYS_CLIENT_SECRET` and `GENESYS_REGION` on the server (an OAuth client-credentials client whose role can read conversations). The server then calls `GET /api/v2/conversations/{id}` to get the caller's number and pops the matching chart.

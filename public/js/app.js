@@ -780,7 +780,7 @@
           <p class="small"><a href="#" data-usermenu-open>Change settings</a> &middot; <a href="/api-docs.html" target="_blank">API reference</a></p>
           <h4 style="margin:12px 0 6px">URL templates</h4>
           <div class="small" style="font-family:ui-monospace,Menlo,monospace;background:#f6f5f3;padding:10px;border-radius:4px;word-break:break-all">
-            <b>Script web page</b><br>${esc(base)}/pop?phone={{Scripter.Raw Customer Number}}&amp;conversationId={{Scripter.Interaction ID}}&amp;queue={{Scripter.Queue Name}}&amp;agent={{Scripter.Agent Email}}&amp;embed=1<br><br>
+            <b>Script web page</b><br>${esc(base)}/pop?phone={{Customer phone variable}}&amp;conversationId={{Scripter.Interaction ID}}&amp;queue={{Scripter.Queue Name}}&amp;agent={{Scripter.Agent Email}}&amp;embed=1<br><br>
             <b>Interaction Widget</b><br>${esc(base)}/pop?conversationId={{gcConversationId}}&amp;embed=1<br><br>
             <b>By MRN (collected in IVR/bot, passed as participant data)</b><br>${esc(base)}/pop?mrn={{MRN}}&amp;conversationId={{Scripter.Interaction ID}}</div>
         </div></div>
