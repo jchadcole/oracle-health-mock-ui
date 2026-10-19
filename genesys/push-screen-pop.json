@@ -10,7 +10,7 @@
         "x-api-key": "${credentials.apiKey}",
         "Content-Type": "application/json"
       },
-      "requestTemplate": "{\"phone\": \"${input.phone}\", \"conversationId\": \"${input.conversationId}\", \"agent\": \"${input.agentEmail}\", \"queue\": \"${input.queue}\", \"mediaType\": \"${input.mediaType}\", \"intent\": \"${input.intent}\"}"
+      "requestTemplate": "{\"phone\": \"${input.phone}\", \"conversationId\": \"$!{input.conversationId}\", \"agent\": \"${input.agentEmail}\", \"queue\": \"$!{input.queue}\", \"mediaType\": \"$!{input.mediaType}\", \"intent\": \"$!{input.intent}\"}"
     },
     "response": {
       "translationMap": {

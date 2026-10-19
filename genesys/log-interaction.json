@@ -10,7 +10,7 @@
         "x-api-key": "${credentials.apiKey}",
         "Content-Type": "application/json"
       },
-      "requestTemplate": "{\"method\": \"Phone call\", \"direction\": \"${input.direction}\", \"outcome\": \"${input.outcome}\", \"durationMin\": \"${input.durationMin}\", \"note\": \"${input.note}\", \"conversationId\": \"${input.conversationId}\", \"queue\": \"${input.queue}\", \"createdBy\": \"Genesys Cloud\", \"source\": \"Genesys Cloud\"}"
+      "requestTemplate": "{\"method\": \"Phone call\", \"direction\": \"$!{input.direction}\", \"outcome\": \"$!{input.outcome}\", \"durationMin\": \"$!{input.durationMin}\", \"note\": \"$!{input.note}\", \"conversationId\": \"$!{input.conversationId}\", \"queue\": \"$!{input.queue}\", \"createdBy\": \"Genesys Cloud\", \"source\": \"Genesys Cloud\"}"
     },
     "response": {
       "translationMap": {
