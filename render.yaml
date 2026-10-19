@@ -12,5 +12,6 @@ services:
         value: America/Chicago
       - key: API_KEY
         generateValue: true
+      # Who may iframe the app. "*" works with every Genesys Cloud region; tighten later if needed.
       - key: FRAME_ANCESTORS
-        value: "'self' https://*.mypurecloud.com https://*.mypurecloud.ie https://*.mypurecloud.de https://*.mypurecloud.jp https://*.mypurecloud.com.au https://*.pure.cloud"
+        value: "*"
